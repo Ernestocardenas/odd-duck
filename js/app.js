@@ -10,6 +10,14 @@ let uniqueProducts = [];
 // setting a counter to keep track of number of clicks
 let clickCounter = 0;
 
+// on page load: loading users click counter from LS with an if statement. if the users clicks are less than or equal to 24, the clicks from LS will be loaded and the user can continue. If clicks exceed 24, this if statement is ignored and users click counter starts at 0.
+if (localStorage.getItem('userClicks') <= 24) {
+  let loadedClickCounter = localStorage.getItem('userClicks');
+  clickCounter = JSON.parse(loadedClickCounter);
+} else {
+  localStorage.removeItem('products');
+}
+
 let results = document.getElementById('result');
 
 // Assigning HTML img elements to 3 separate image variables, will be manipulated to add src and alt attributes
@@ -33,7 +41,7 @@ let product3 = new Product ('Tablet TP', './img/bathroom.jpg');
 let product4 = new Product ('Breakfast Machine', './img/breakfast.jpg');
 let product5 = new Product ('Meatball BG', './img/bubblegum.jpg');
 let product6 = new Product ('Uncomfortable Chair', './img/chair.jpg');
-let product7 = new Product ('Cthulhu', '.iImg/cthulhu.jpg');
+let product7 = new Product ('Cthulhu', './img/cthulhu.jpg');
 let product8 = new Product ('Dog Duck', './img/dog-duck.jpg');
 let product9 = new Product ('Dragon Meat', './img/dragon.jpg');
 let product10 = new Product ('Weird Pens', './img/pen.jpg');
@@ -48,36 +56,37 @@ let product18 = new Product ('Wine Glass', './img/wine-glass.jpg');
 let product19 = new Product ('Useless Boots', './img/boots.jpg');
 
 
-// -----------------------------------
-// 2. Create an algorithm that will randomly generate three unique product images from the images directory and display them side-by-side-by-side in the browser window.
-// -----------------------------------
-
+if (localStorage.getItem('products')) {
+  let loadedProductsArr = localStorage.getItem('products');
+  // console.log(loadedProductsArr);
+  productsArr = JSON.parse(loadedProductsArr);
+  // console.log(productsArr);
+}
+// console.log(productsArr);
 
 // creating a function to generate a random index from the productsArr
 function generateRandomProdIndex () {
   return Math.floor(Math.random() * productsArr.length);
 }
 
+// creating a function that renders 3 randomly generated product images
 
 function renderProductImages () {
 
   while (uniqueProducts.length < 6 ) {
 
     let randomIndex = generateRandomProdIndex();
-    console.log(`The random product is: ${productsArr[randomIndex].name}`);
+    // console.log(`The random product is: ${productsArr[randomIndex].name}`);
 
     if(!uniqueProducts.includes(productsArr[randomIndex])) {
       uniqueProducts.push(productsArr[randomIndex]);
-      console.log('the unique products are: ', uniqueProducts);
+      // console.log('the unique products are: ', uniqueProducts);
     }
   }
 
   let firstImageObject = uniqueProducts.shift();
   let secondImageObject = uniqueProducts.shift();
   let thirdImageObject = uniqueProducts.shift();
-
-  console.log('The three unique images are :', firstImageObject.name, secondImageObject.name, thirdImageObject.name);
-  console.log('The remain unique products after shifts is:', uniqueProducts);
 
   image1.src = firstImageObject.src;
   image1.alt = firstImageObject.name;
@@ -108,6 +117,17 @@ function handleClickedProduct(event) {
     }
   }
 
+  // Saving productArr to localStorage after every click
+
+  // declaring new variable and assigning it a stringified productsArr and console logging for testing
+  let productsArrConvertedForLS = JSON.stringify(productsArr);
+  let clickCounterConvertedForLS = JSON.stringify(clickCounter);
+
+
+  // setting productsArr into local storage with the name products as the key and console logging for testing
+  localStorage.setItem('products', productsArrConvertedForLS);
+  localStorage.setItem('userClicks', clickCounterConvertedForLS);
+ 
   renderProductImages();
 
   if (clickCounter > 24) {
@@ -139,6 +159,8 @@ function handleViewResults() {
     clicks.push(productsArr[i].clicked);
   }
 
+  // Chart sourced from "https://www.chartjs.org/docs/latest/getting-started/"
+  // This chart will render the results of each images views and clicks in a bar graph
   const ctx = document.getElementById('myChart');
 
   new Chart(ctx, {
@@ -178,5 +200,3 @@ image1.addEventListener('click', handleClickedProduct);
 image2.addEventListener('click', handleClickedProduct);
 image3.addEventListener('click', handleClickedProduct);
 results.addEventListener('click', handleViewResults);
-
-
